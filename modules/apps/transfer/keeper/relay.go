@@ -93,12 +93,15 @@ func (k Keeper) SendTransfer(
 	}
 
 	// NOTE: denomination and hex hash correctness checked during msg.ValidateBasic
+	// uatom
 	fullDenomPath := token.Denom
 
 	var err error
 
 	// deconstruct the token denomination into the denomination trace info
 	// to determine if the sender is the source chain
+	// uatom -> osmo -> nova
+	// ibc/hash
 	if strings.HasPrefix(token.Denom, "ibc/") {
 		fullDenomPath, err = k.DenomPathFromHash(ctx, token.Denom)
 		if err != nil {
@@ -127,7 +130,6 @@ func (k Keeper) SendTransfer(
 		); err != nil {
 			return err
 		}
-
 	} else {
 		labels = append(labels, telemetry.NewLabel(coretypes.LabelSource, "false"))
 
@@ -248,6 +250,7 @@ func (k Keeper) OnRecvPacket(ctx sdk.Context, packet channeltypes.Packet, data t
 			return sdkerrors.Wrapf(sdkerrors.ErrUnauthorized, "%s is not allowed to receive funds", receiver)
 		}
 
+		// portID/channelID/basedenom
 		// unescrow tokens
 		escrowAddress := types.GetEscrowAddress(packet.GetDestPort(), packet.GetDestChannel())
 		if err := k.bankKeeper.SendCoins(ctx, escrowAddress, receiver, sdk.NewCoins(token)); err != nil {
@@ -275,7 +278,6 @@ func (k Keeper) OnRecvPacket(ctx sdk.Context, packet channeltypes.Packet, data t
 				),
 			)
 		}()
-
 		return nil
 	}
 
@@ -317,6 +319,9 @@ func (k Keeper) OnRecvPacket(ctx sdk.Context, packet channeltypes.Packet, data t
 	); err != nil {
 		return err
 	}
+
+	// hook 실행
+	// k.AfterOnRecvPacket(ctx, packet)
 
 	defer func() {
 		if transferAmount.IsInt64() {
