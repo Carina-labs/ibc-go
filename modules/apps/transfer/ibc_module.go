@@ -225,8 +225,10 @@ func (im IBCModule) OnAcknowledgementPacket(
 	}
 
 	// AfterTransferEnd
-	denom := types.ParseDenomTrace(data.Denom)
-	im.keeper.AfterTransferEnd(ctx, data, denom.BaseDenom)
+	if ack.Success() {
+		denom := types.ParseDenomTrace(data.Denom)
+		im.keeper.AfterTransferEnd(ctx, data, denom.BaseDenom)
+	}
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
