@@ -10,6 +10,10 @@ func (k Keeper) AfterTransferEnd(ctx sdk.Context, packet types.FungibleTokenPack
 	k.hooks.AfterTransferEnd(ctx, packet, base_denom)
 }
 
+func (k Keeper) AfterTransferFail(ctx sdk.Context, packet types.FungibleTokenPacketData, base_denom string) {
+	k.hooks.AfterTransferFail(ctx, packet, base_denom)
+}
+
 // AfterOnRecvPacket executes the indicated hook after OnRecvPacket ends
 func (k Keeper) AfterOnRecvPacket(ctx sdk.Context, packet types.FungibleTokenPacketData) {
 	k.hooks.AfterOnRecvPacket(ctx, packet)

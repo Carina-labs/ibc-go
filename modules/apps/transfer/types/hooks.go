@@ -6,6 +6,7 @@ import (
 
 type TransferHooks interface {
 	AfterTransferEnd(ctx sdk.Context, data FungibleTokenPacketData, base_denom string)
+	AfterTransferFail(ctx sdk.Context, data FungibleTokenPacketData, base_denom string)
 	AfterOnRecvPacket(ctx sdk.Context, data FungibleTokenPacketData)
 }
 
@@ -20,6 +21,12 @@ func NewMultiTransferHooks(hooks ...TransferHooks) MultiTransferHooks {
 func (h MultiTransferHooks) AfterTransferEnd(ctx sdk.Context, data FungibleTokenPacketData, base_denom string) {
 	for i := range h {
 		h[i].AfterTransferEnd(ctx, data, base_denom)
+	}
+}
+
+func (h MultiTransferHooks) AfterTransferFail(ctx sdk.Context, data FungibleTokenPacketData, base_denom string) {
+	for i := range h {
+		h[i].AfterTransferFail(ctx, data, base_denom)
 	}
 }
 

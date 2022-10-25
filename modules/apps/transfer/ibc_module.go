@@ -223,11 +223,12 @@ func (im IBCModule) OnAcknowledgementPacket(
 	if err := im.keeper.OnAcknowledgementPacket(ctx, packet, data, ack); err != nil {
 		return err
 	}
-
+	denom := types.ParseDenomTrace(data.Denom)
 	// AfterTransferEnd
 	if ack.Success() {
-		denom := types.ParseDenomTrace(data.Denom)
 		im.keeper.AfterTransferEnd(ctx, data, denom.BaseDenom)
+	} else {
+		im.keeper.AfterTransferFail(ctx, data, denom.BaseDenom)
 	}
 
 	ctx.EventManager().EmitEvent(
@@ -276,6 +277,9 @@ func (im IBCModule) OnTimeoutPacket(
 	if err := im.keeper.OnTimeoutPacket(ctx, packet, data); err != nil {
 		return err
 	}
+	
+	denom := types.ParseDenomTrace(data.Denom)
+	im.keeper.AfterTransferFail(ctx, data, denom.BaseDenom)
 
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
